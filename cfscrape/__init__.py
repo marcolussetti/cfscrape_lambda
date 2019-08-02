@@ -335,8 +335,8 @@ class CloudflareScraper(Session):
                 if val:
                     setattr(scraper, attr, val)
 
-            if node_path:
-                setattr(scraper, "node_path", node_path)
+            # if node_path:
+            #     setattr(scraper, "node_path", node_path)
 
         scraper.node_path = node_path
 
