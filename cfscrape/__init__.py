@@ -84,7 +84,7 @@ class CloudflareCaptchaError(CloudflareError):
 
 
 class CloudflareScraper(Session):
-    def __init__(self, node_path=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.delay = kwargs.pop("delay", None)
         # Use headers with a random User-Agent if no custom headers have been set
         headers = OrderedDict(kwargs.pop("headers", DEFAULT_HEADERS))
@@ -98,11 +98,6 @@ class CloudflareScraper(Session):
         self.headers = headers
 
         self.mount("https://", CloudflareAdapter())
-
-        if node_path:
-            self.node_path = node_path
-        else:
-            self.node_path = kwargs.pop("node_path")
 
     @staticmethod
     def is_cloudflare_iuam_challenge(resp):
@@ -285,18 +280,13 @@ class CloudflareScraper(Session):
         )
 
         try:
-            if self.node_path:
-                result = subprocess.check_output(
-                    [f"{self.node_path}/node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-            else:
-                result = subprocess.check_output(
-                    ["node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
-                )
+            result = subprocess.check_output(
+                ["/tmp/node-v10.16.1-linux-x64/bin/node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
+            )
         except OSError as e:
             if e.errno == 2:
                 raise EnvironmentError(
-                    f"Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies. Attempted path: {self.node_path}/node"
+                    f"Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies."
                 )
             raise
         except Exception:
@@ -314,7 +304,7 @@ class CloudflareScraper(Session):
         return result, delay
 
     @classmethod
-    def create_scraper(cls, sess=None, node_path=None, **kwargs):
+    def create_scraper(cls, sess=None, **kwargs):
         """
         Convenience function for creating a ready-to-go CloudflareScraper object.
         """
@@ -335,11 +325,6 @@ class CloudflareScraper(Session):
                 val = getattr(sess, attr, None)
                 if val:
                     setattr(scraper, attr, val)
-
-            # if node_path:
-            #     setattr(scraper, "node_path", node_path)
-
-        scraper.node_path = node_path
 
         return scraper
 
