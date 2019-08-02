@@ -84,7 +84,7 @@ class CloudflareCaptchaError(CloudflareError):
 
 
 class CloudflareScraper(Session):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, node_path=None, *args, **kwargs):
         self.delay = kwargs.pop("delay", None)
         # Use headers with a random User-Agent if no custom headers have been set
         headers = OrderedDict(kwargs.pop("headers", DEFAULT_HEADERS))
@@ -99,9 +99,10 @@ class CloudflareScraper(Session):
 
         self.mount("https://", CloudflareAdapter())
 
-        node_path = kwargs.pop("node_path")
-
-        self.node_path = node_path
+        if node_path:
+            self.node_path = node_path
+        else:
+            self.node_path = kwargs.pop("node_path")
 
     @staticmethod
     def is_cloudflare_iuam_challenge(resp):
