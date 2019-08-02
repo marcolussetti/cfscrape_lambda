@@ -117,7 +117,8 @@ class CloudflareScraper(Session):
         )
 
     def request(self, method, url, *args, **kwargs):
-        resp = super(CloudflareScraper, self).request(method, url, *args, **kwargs)
+        resp = super(CloudflareScraper, self).request(
+            method, url, *args, **kwargs)
 
         # Check if Cloudflare captcha challenge is presented
         if self.is_cloudflare_captcha_challenge(resp):
@@ -152,7 +153,8 @@ class CloudflareScraper(Session):
         body = resp.text
         parsed_url = urlparse(resp.url)
         domain = parsed_url.netloc
-        submit_url = "%s://%s/cdn-cgi/l/chk_jschl" % (parsed_url.scheme, domain)
+        submit_url = "%s://%s/cdn-cgi/l/chk_jschl" % (
+            parsed_url.scheme, domain)
 
         cloudflare_kwargs = copy.deepcopy(original_kwargs)
 
@@ -161,7 +163,8 @@ class CloudflareScraper(Session):
 
         try:
             params = cloudflare_kwargs["params"] = OrderedDict(
-                re.findall(r'name="(s|jschl_vc|pass)"(?: [^<>]*)? value="(.+?)"', body)
+                re.findall(
+                    r'name="(s|jschl_vc|pass)"(?: [^<>]*)? value="(.+?)"', body)
             )
 
             for k in ("jschl_vc", "pass"):
@@ -219,7 +222,8 @@ class CloudflareScraper(Session):
 
             # The challenge requires `document.getElementById` to get this content.
             # Future proofing would require escaping newlines and double quotes
-            innerHTML = re.search(r"<div(?: [^<>]*)? id=\"cf-dn.*?\">([^<>]*)", body)
+            innerHTML = re.search(
+                r"<div(?: [^<>]*)? id=\"cf-dn.*?\">([^<>]*)", body)
             innerHTML = innerHTML.group(1) if innerHTML else ""
 
             # Prefix the challenge with a fake document object.
@@ -277,7 +281,7 @@ class CloudflareScraper(Session):
 
         try:
             result = subprocess.check_output(
-                ["node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                ["nodejs/bin/node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
             )
         except OSError as e:
             if e.errno == 2:
@@ -287,7 +291,8 @@ class CloudflareScraper(Session):
                 )
             raise
         except Exception:
-            logging.error("Error executing Cloudflare IUAM Javascript. %s" % BUG_REPORT)
+            logging.error(
+                "Error executing Cloudflare IUAM Javascript. %s" % BUG_REPORT)
             raise
 
         try:
@@ -336,7 +341,8 @@ class CloudflareScraper(Session):
             resp = scraper.get(url, **kwargs)
             resp.raise_for_status()
         except Exception:
-            logging.error("'%s' returned an error. Could not collect tokens." % url)
+            logging.error(
+                "'%s' returned an error. Could not collect tokens." % url)
             raise
 
         domain = urlparse(resp.url).netloc
@@ -366,7 +372,8 @@ class CloudflareScraper(Session):
         """
         Convenience function for building a Cookie HTTP header value.
         """
-        tokens, user_agent = cls.get_tokens(url, user_agent=user_agent, **kwargs)
+        tokens, user_agent = cls.get_tokens(
+            url, user_agent=user_agent, **kwargs)
         return "; ".join("=".join(pair) for pair in tokens.items()), user_agent
 
 
