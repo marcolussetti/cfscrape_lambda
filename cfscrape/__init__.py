@@ -295,8 +295,7 @@ class CloudflareScraper(Session):
         except OSError as e:
             if e.errno == 2:
                 raise EnvironmentError(
-                    "Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape"
-                    " README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies."
+                    f"Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies. Attempted path: {self.node_path}/node"
                 )
             raise
         except Exception:
