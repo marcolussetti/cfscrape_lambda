@@ -338,6 +338,8 @@ class CloudflareScraper(Session):
             if node_path:
                 setattr(scraper, "node_path", node_path)
 
+        scraper.node_path = node_path
+
         return scraper
 
     # Functions for integrating cloudflare-scrape with other applications and scripts
