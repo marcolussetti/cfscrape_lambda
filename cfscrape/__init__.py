@@ -256,6 +256,7 @@ class CloudflareScraper(Session):
         # The sandboxed code cannot use the Node.js standard library
         js = (
             """\
+            function process_challenge() {\
             var atob = Object.setPrototypeOf(function (str) {\
                 try {\
                     return Buffer.from("" + str, "base64").toString("binary");\
@@ -269,9 +270,10 @@ class CloudflareScraper(Session):
                 contextCodeGeneration: { strings: true, wasm: false },\
                 timeout: 5000\
             };\
-            process.stdout.write(String(\
+            return String(\
                 require("vm").runInNewContext(challenge, context, options)\
-            ));\
+            );\
+            }\
         """
             % challenge
         )
