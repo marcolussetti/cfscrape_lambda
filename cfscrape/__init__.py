@@ -99,6 +99,10 @@ class CloudflareScraper(Session):
 
         self.mount("https://", CloudflareAdapter())
 
+        node_path = kwargs.pop("node_path")
+
+        self.node_path = node_path
+
     @staticmethod
     def is_cloudflare_iuam_challenge(resp):
         return (
@@ -280,9 +284,14 @@ class CloudflareScraper(Session):
         )
 
         try:
-            result = subprocess.check_output(
-                ["nodejs/bin/node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
-            )
+            if self.node_path:
+                result = subprocess.check_output(
+                    [f"{self.node_path}/node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+            else:
+                result = subprocess.check_output(
+                    ["node", "-e", js], stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                )
         except OSError as e:
             if e.errno == 2:
                 raise EnvironmentError(
@@ -305,7 +314,7 @@ class CloudflareScraper(Session):
         return result, delay
 
     @classmethod
-    def create_scraper(cls, sess=None, **kwargs):
+    def create_scraper(cls, sess=None, node_path=None, **kwargs):
         """
         Convenience function for creating a ready-to-go CloudflareScraper object.
         """
@@ -326,6 +335,9 @@ class CloudflareScraper(Session):
                 val = getattr(sess, attr, None)
                 if val:
                     setattr(scraper, attr, val)
+
+            if node_path:
+                setattr(scraper, "node_path", node_path)
 
         return scraper
 
