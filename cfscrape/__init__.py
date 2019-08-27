@@ -11,6 +11,7 @@ import os
 from base64 import b64encode
 from collections import OrderedDict
 
+import js2py
 from requests.sessions import Session
 from requests.adapters import HTTPAdapter
 from requests.compat import urlparse, urlunparse
@@ -259,6 +260,7 @@ class CloudflareScraper(Session):
         # The sandboxed code cannot use the Node.js standard library
         js = (
             """\
+            function process_challenge() {\
             var atob = Object.setPrototypeOf(function (str) {\
                 try {\
                     return Buffer.from("" + str, "base64").toString("binary");\
@@ -272,9 +274,10 @@ class CloudflareScraper(Session):
                 contextCodeGeneration: { strings: true, wasm: false },\
                 timeout: 5000\
             };\
-            process.stdout.write(String(\
+            return String(\
                 require("vm").runInNewContext(challenge, context, options)\
-            ));\
+            );\
+            }\
         """
             % challenge
         )
