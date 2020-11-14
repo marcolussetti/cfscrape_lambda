@@ -319,7 +319,7 @@ class CloudflareScraper(Session):
 
         try:
             node = subprocess.Popen(
-                ["/tmp/node-v10.16.1-linux-x64/bin/node", "-e", js], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                ["/tmp/node-v14.15.0-linux-x64/bin/node", "-e", js], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 universal_newlines=True
                 )
             result, stderr = node.communicate()
