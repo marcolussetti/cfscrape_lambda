@@ -118,8 +118,7 @@ class CloudflareScraper(Session):
         )
 
     def request(self, method, url, *args, **kwargs):
-        resp = super(CloudflareScraper, self).request(
-            method, url, *args, **kwargs)
+        resp = super(CloudflareScraper, self).request(method, url, *args, **kwargs)
 
         # Check if Cloudflare captcha challenge is presented
         if self.is_cloudflare_captcha_challenge(resp):
@@ -297,7 +296,6 @@ class CloudflareScraper(Session):
         # The sandboxed code cannot use the Node.js standard library
         js = (
             """\
-            function process_challenge() {\
             var atob = Object.setPrototypeOf(function (str) {\
                 try {\
                     return Buffer.from("" + str, "base64").toString("binary");\
@@ -311,10 +309,9 @@ class CloudflareScraper(Session):
                 contextCodeGeneration: { strings: true, wasm: false },\
                 timeout: 5000\
             };\
-            return String(\
+            process.stdout.write(String(\
                 require("vm").runInNewContext(challenge, context, options)\
-            );\
-            }\
+            ));\
         """
             % challenge
         )
@@ -332,12 +329,12 @@ class CloudflareScraper(Session):
         except OSError as e:
             if e.errno == 2:
                 raise EnvironmentError(
-                    f"Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies."
+                    "Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape"
+                    " README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies."
                 )
             raise
         except Exception:
-            logging.error(
-                "Error executing Cloudflare IUAM Javascript. %s" % BUG_REPORT)
+            logging.error("Error executing Cloudflare IUAM Javascript. %s" % BUG_REPORT)
             raise
 
         try:
@@ -386,8 +383,7 @@ class CloudflareScraper(Session):
             resp = scraper.get(url, **kwargs)
             resp.raise_for_status()
         except Exception:
-            logging.error(
-                "'%s' returned an error. Could not collect tokens." % url)
+            logging.error("'%s' returned an error. Could not collect tokens." % url)
             raise
 
         domain = urlparse(resp.url).netloc
@@ -417,8 +413,7 @@ class CloudflareScraper(Session):
         """
         Convenience function for building a Cookie HTTP header value.
         """
-        tokens, user_agent = cls.get_tokens(
-            url, user_agent=user_agent, **kwargs)
+        tokens, user_agent = cls.get_tokens(url, user_agent=user_agent, **kwargs)
         return "; ".join("=".join(pair) for pair in tokens.items()), user_agent
 
 
