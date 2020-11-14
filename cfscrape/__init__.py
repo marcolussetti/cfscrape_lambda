@@ -11,7 +11,6 @@ import os
 from base64 import b64encode
 from collections import OrderedDict
 
-import js2py
 from requests.sessions import Session
 from requests.adapters import HTTPAdapter
 from requests.compat import urlparse, urlunparse
